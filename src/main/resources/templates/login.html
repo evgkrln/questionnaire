@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" class="row h-100 w-100">
+<head>
+    <meta charset="UTF-8">
+    <title>Log In</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+</head>
+<body class="h-100 w-100" style="background-color: rgba(0, 0, 0, 0.04)">
+<div class="row h-100 w-100">
+    <div class="col-4 align-self-center m-auto">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" th:action="@{/login}">
+                    <div class="col-md-6 mx-auto text-center">
+                        <div class="header-title mb-4">
+                            <h3 class="wv-heading--title">Log In</h3>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group"><input type="text" class="form-control" name="username" id="username" placeholder="Email" required></div>
+                        <div class="form-group"><input type="password" class="form-control" name="password" id="password" placeholder="Password" required></div>
+                        <input class="form-group" type="checkbox" id="remember"><label class="form-check-label" for="remember">&nbspRemember me</label>
+                        <a href="#" class="text-primary float-right">Forgot your password?</a>
+                        <div class="form-group "><button type="submit" class="btn btn-primary btn-lg btn-block login-button">LOG IN</button></div>
+                        <div class="text text-danger mx-auto text-center" th:if="${param.error}"><h6>Invalid Email or Password</h6></div>
+                        <div th:if="${param.info != null}">
+                            <div th:if="${param.info[0] == 'need_confirm'}" class="text text-danger mx-auto text-center"><h6>Please check your email to activate your account</h6></div>
+                            <div th:if="${param.info[0] == 'not_confirm'}" class="text text-danger mx-auto text-center"><h6>Activation code is not found</h6></div>
+                            <div th:if="${param.info[0] == 'good_confirm'}" class="text text-success mx-auto text-center"><h6>User Successfully activated</h6></div>
+                        </div>
+                    </div>
+                    <div class="login-register col-md-8 mx-auto text-center"><p class="small mt-3">Don't have account? <a th:href="@{/registration}" class="text-primary">Sign Up</a></p></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>

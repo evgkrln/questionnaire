@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100 w-100" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Responses</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+</head>
+<body class="h-100 w-100" style="background-color: rgba(0, 0, 0, 0.04)">
+
+<nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color: white; border-bottom: 1px solid rgba(0, 0, 0, 0.125);">
+    <div class="container">
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/field}">Fields</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-primary" th:href="@{/responses}">Responses</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a  th:text="${name}" class="nav-link dropdown-toggle" href="#" id="navbarDropdownBlog" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Profile
+                        <span class="sr-only">(current)</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownBlog">
+                        <a class="dropdown-item" th:href="@{/editprofile}">Edit Profile</a>
+                        <a class="dropdown-item" th:href="@{/changepass}">Change Password</a>
+                        <a class="dropdown-item" th:href="@{/logout}">Log Out</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="row h-100 w-100">
+    <div class="col-9 mx-auto" style="margin-top: 8%; margin-bottom: 4%">
+        <div class="card">
+            <div class="card-body">
+                <div class="float-left"><h2>Responses</h2></div>
+                <div class="float-right mb-3"><button type="button" id="btnModal" class="btn btn-primary" data-toggle="modal" data-target="#AddFieldModal"><img th:src="@{img/plus.png}" src="../../static/img/plus.png"  height="22" style="margin-bottom: 4px"> ADD FIELD</button></div>
+                <table id="mytable"  class="table table-striped">
+                    <thead>
+                    <tr id="trlabel">
+                    </tr>
+                    </thead>
+                    <tbody id="trbody">
+                    </tbody>
+                </table>
+                <div class="col-12">
+                    <div class="row">
+                        <div class="str float-left mt-auto mb-auto"></div>
+                        <ul class="pagination mx-auto"><div class="pages mx-auto" style="display: flex;"></div></ul>
+                        <div class="float-right">
+                            <select name="state" id="maxRows" class="form-control" style="width: 80px;">
+                                <option selected value="3">3</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="500">All</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="messages"></div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script th:inline="javascript">
+    $(document).ready(function(){
+        var socket = new SockJS('/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, onConnected, onError);
+        function onConnected() {
+            stompClient.subscribe('/topic/responses', function(response) {
+                showResponse(JSON.parse(response.body).response);
+            });
+        }
+        function onError(error) {
+            console.log('Could not connect to WebSocket server. Please refresh this page to try again!');
+        }
+
+        var questions = [[${questions}]];
+        var fields = [];
+        $.each(questions, function (i, q) {
+            if (q.active == true) {
+                $('#mytable #trlabel').append("<th>" + q.label + "</th>");
+                fields.push(q.label.replace(/\s/g, ''));
+            }
+        });
+        var response = [[${responses}]];
+        $.each(response, function (i, r) {
+            showResponse(r.response);
+        });
+        function showResponse(response) {
+            var resp = (unescape(response).replace('+',' ')).split('&');
+            var trstr='<tr>';
+            for (j=0; j < fields.length; j++) {
+                var fortrstr = '';
+                for (i = 1; i < resp.length; i++) {
+                    var res = (resp[i]).split("=");
+                    if (fields[j] == res[0]) {
+                        fortrstr = '<td>'+res[1]+'</td>';
+                    }
+                }
+                if (fortrstr == '') {
+                    trstr += '<td>N/A</td>';
+                } else {
+                    trstr += fortrstr;
+                }
+            }
+            trstr += '</tr>\n';
+            $('#mytable #trbody').append(trstr);
+
+        }
+    });
+</script>
+<script th:src="@{js/pagination.js}" src="../../static/js/pagination.js"></script>
+</body>
+</html>

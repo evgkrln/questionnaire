@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" class="h-100 w-100" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="utf-8">
+  <title>Questions</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+</head>
+<body class="h-100 w-100" style="background-color: rgba(0, 0, 0, 0.04)">
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color: white; border-bottom: 1px solid rgba(0, 0, 0, 0.125);">
+    <div class="container">
+      <div class="collapse navbar-collapse" id="navbarResponsive1">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item ">
+            <a class="nav-link" th:href="@{/login}">Log In</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  
+    
+  <div class="row h-100 w-100">
+    <div class="col-4 mx-auto" style="margin-top: 7%; margin-bottom: 5%">
+      <div class="card">
+      <div class="card-body">
+
+        <form method="post" th:action="@{/question}" id="qform" name="qform">
+            <div id="quest"></div>
+            <div class="col-sm-12 mt-4">
+              <button type="button" class="btn Reset">Reset</button>
+              <button type="submit" class="btn btn-primary">SUBMIT</button>
+            </div>
+        </form>
+        <div id="error"></div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script th:inline="javascript">
+      $(document).ready(function(){
+          var questions = [[${questions}]];
+          $.each(questions, function (i, q) {
+              if (q.active == true) {
+                if(q.required == true) {
+                  $('#qform #quest').append("<label for=" + q.label + " class='col-sm-7 col-form-label'  style='display: flex;'>" + q.label + "<h6 class='text-danger'>&nbsp;*</h6></label>");
+                } else {
+                  $('#qform #quest').append("<label for=" + q.label + " class='col-sm-7 col-form-label'>" + q.label + "</label>");
+                }
+                var field=q.label.replace(/\s/g, '');
+
+                  if (q.type == 'text'){
+                    if(q.required == true) {
+                      $('#qform #quest').append("<div class='col-sm-12'><input type='text' class='form-control' id=" + field + " name=" + field + " required></div>");
+                    } else {
+                      $('#qform #quest').append("<div class='col-sm-12'><input type='text' class='form-control' id=" + field + " name=" + field + "></div>");
+                    }
+                  }
+                  if (q.type == 'textarea') {
+                    if(q.required == true) {
+                      $('#qform #quest').append("<div class='col-sm-12'><textarea class='form-control' id=" + field + " name=" + field + " required></texarea></div");
+                    } else {
+                      $('#qform #quest').append("<div class='col-sm-12'><textarea class='form-control' id=" + field + " name=" + field + "></texarea></div");
+                    }
+                  }
+                  if (q.type == 'radio') {
+                      var option = (q.options).split(",");
+                      for (i = 0; i < option.length; i++) {
+                          $('#qform #quest').append("<div class='col-sm-12'><input type='radio' id=" + option[i] + " value=" + option[i] + " name=" + field + "><label for=" + option[i] + ">" + option[i] + "</label></div>");
+                      }
+                  }
+                  if (q.type == 'checkbox') {
+                      var option = (q.options).split(",");
+                      for (i = 0; i < option.length; i++) {
+                        $('#qform #quest').append("<div class='col-sm-12'><input type='checkbox' id=" + option[i] + " value=" + option[i] + " name=" + field + "><label for=" + option[i] + ">" + option[i] + "</label></div>");
+                      }
+                  }
+                  if (q.type == 'select') {
+                      var selectstr="<div class='col-sm-12'><select class='form-control select' id=" + field + " name=" + field + ">"
+                      var option = (q.options).split(",");
+                      for (i = 0; i < option.length; i++) {
+                          selectstr += "<option value=" + option[i] + ">" + option[i] + "</option>";
+                      }
+                      selectstr += "</select></div>";
+                      $('#qform #quest').append(selectstr);
+                  }
+                  if (q.type == 'date') $('#qform #quest').append("<input type='date' class='form-control' id=" + field + " name=" + field + ">");
+              }
+          });
+      });
+  </script>
+<script>
+  $(document).ready(function(){
+    $('.Reset').on('click', function() {
+      $('form[name=qform]').trigger('reset');
+    });
+  });
+</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <script>
+    $(document).ready(function(){
+        $( "#qform" ).on( "submit", function( event ) {
+            event.preventDefault();
+            var socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            var str = $("#qform").serialize();
+            stompClient.connect({}, onConnected, onError);
+            function onConnected() {
+                stompClient.send("/app/responses", {}, JSON.stringify({"response": str }));
+                document.location.href = "http://localhost:8080/success";
+            }
+            function onError(error) {
+                console.log('Could not connect to WebSocket server. Please refresh this page to try again!');
+                $("#error").append('<br><div class="text text-danger mx-auto text-center"><h6>Could not connect to WebSocket server.</h6><h6>Please refresh this page to try again!</h6></div>');
+
+            }
+        });
+    });
+</script>
+</body>
+</html>
