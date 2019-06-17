@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
                 this.roleService.save(role);
             }
 
-            String message = String.format("Hello, %s! \nWelcome to PROJECT. Please, visit next link: http://localhost:8080/activate/%s", user.getFirstname(), user.getActivationCode());
+            String message = String.format("Hello, %s! \nWelcome to Questionnaire. Please, visit next link: https://questionnaireproject.herokuapp.com/activate/%s", user.getFirstname(), user.getActivationCode());
             this.mailSender.send(user.getEmail(), "Activation code", message);
             return true;
         }
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
         edituser.setActivationCode(UUID.randomUUID().toString());
         edituser.setEnabled(false);
         this.userRepository.save(edituser);
-        String message = String.format("Hello, %s! \nWelcome to PROJECT. Please, visit next link : http://localhost:8080/activate/%s", edituser.getFirstname(), edituser.getActivationCode());
+        String message = String.format("Hello, %s! \nWelcome to Questionnaire. Please, visit next link: https://questionnaireproject.herokuapp.com/activate/%s", edituser.getFirstname(), edituser.getActivationCode());
         this.mailSender.send(edituser.getEmail(), "Activation code", message);
     }
 }

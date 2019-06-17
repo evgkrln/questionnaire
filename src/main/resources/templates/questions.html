@@ -110,7 +110,7 @@
             stompClient.connect({}, onConnected, onError);
             function onConnected() {
                 stompClient.send("/app/responses", {}, JSON.stringify({"response": str }));
-                document.location.href = "http://localhost:8080/success";
+                document.location.href = "https://questionnaireproject.herokuapp.com/success";
             }
             function onError(error) {
                 console.log('Could not connect to WebSocket server. Please refresh this page to try again!');
