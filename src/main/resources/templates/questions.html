@@ -86,7 +86,7 @@
                       selectstr += "</select></div>";
                       $('#qform #quest').append(selectstr);
                   }
-                  if (q.type == 'date') $('#qform #quest').append("<input type='date' class='form-control' id=" + field + " name=" + field + ">");
+                  if (q.type == 'date') $('#qform #quest').append("<div class='col-sm-12'><input type='date' class='form-control' id=" + field + " name=" + field + "></div>");
               }
           });
       });
